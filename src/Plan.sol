@@ -38,14 +38,8 @@ contract Plan is ERC721, Ownable {
         uint256 time = startTime[msg.sender];
 
         require(time > 0, "Plan: user did not start plan");
-        require(
-            block.timestamp >= time + period,
-            "Plan: time not finished yet"
-        );
-        require(
-            msg.value >= mintPrice,
-            "Plan: value is not enough for minting"
-        );
+        require(block.timestamp >= time + period, "Plan: time not finished yet");
+        require(msg.value >= mintPrice, "Plan: value is not enough for minting");
         require(currentSupply + 1 < TOTAL_SUPPLY, "Plan: total supply reached");
 
         startTime[msg.sender] = 0;
@@ -54,7 +48,7 @@ contract Plan is ERC721, Ownable {
     }
 
     function withdraw() external onlyOwner {
-        (bool success, ) = msg.sender.call{value: address(this).balance}("");
+        (bool success,) = msg.sender.call{value: address(this).balance}("");
         require(success, "Plan: withdraw failed");
     }
 

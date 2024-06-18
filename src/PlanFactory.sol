@@ -6,12 +6,7 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {Plan} from "./Plan.sol";
 
 contract PlanFactory {
-    event PlanCreated(
-        address indexed creator,
-        string indexed name,
-        address plan,
-        uint256 createAt
-    );
+    event PlanCreated(address indexed creator, string indexed name, address plan, uint256 createAt);
 
     using Strings for string;
 
@@ -26,18 +21,7 @@ contract PlanFactory {
         uint256 period_
     ) public pure returns (bytes memory) {
         bytes memory bytecode = type(Plan).creationCode;
-        return
-            abi.encodePacked(
-                bytecode,
-                abi.encode(
-                    owner,
-                    name,
-                    symbol,
-                    totalSupply,
-                    mintPrice_,
-                    period_
-                )
-            );
+        return abi.encodePacked(bytecode, abi.encode(owner, name, symbol, totalSupply, mintPrice_, period_));
     }
 
     function createPlan(
@@ -47,19 +31,9 @@ contract PlanFactory {
         uint256 mintPrice_,
         uint256 period_
     ) external returns (address plan) {
-        require(
-            !(name.equal("") || symbol.equal("")),
-            "PlanFactory: Not empty name or symbol"
-        );
+        require(!(name.equal("") || symbol.equal("")), "PlanFactory: Not empty name or symbol");
 
-        bytes memory bytecode = _getBytecode(
-            msg.sender,
-            name,
-            symbol,
-            totalSupply,
-            mintPrice_,
-            period_
-        );
+        bytes memory bytecode = _getBytecode(msg.sender, name, symbol, totalSupply, mintPrice_, period_);
 
         plan = Create2.deploy(0, keccak256(bytecode), bytecode);
         userToPlans[msg.sender].push(plan);
@@ -68,16 +42,11 @@ contract PlanFactory {
     }
 
     //-----VIEW------//
-    function getPlans(
-        address creator
-    ) external view returns (address[] memory) {
+    function getPlans(address creator) external view returns (address[] memory) {
         return userToPlans[creator];
     }
 
-    function isPlan(
-        address creator,
-        address plan
-    ) external view returns (bool) {
+    function isPlan(address creator, address plan) external view returns (bool) {
         for (uint256 i = 0; i < userToPlans[creator].length; i++) {
             if (userToPlans[creator][i] == plan) return true;
         }
